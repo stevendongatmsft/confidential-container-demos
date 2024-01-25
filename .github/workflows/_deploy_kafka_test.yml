@@ -1,0 +1,149 @@
+name: Setup Workload Identity 
+
+on:
+  workflow_call:
+    inputs:
+      skr-kafka-demo-topic:
+        description: "Kafka topic"
+        required: true
+        default: "kafka-demo-topic"
+        type: string
+      cluster-name:
+        required: true
+        description: AKS Cluster Name With Randomly Generated Suffix
+        type: string
+      sidecar-registry:
+        required: true
+        default: "mcr.microsoft.com"
+        description: "The registry to get the image from"
+        type: string
+      key-release-image: 
+        required: true 
+        description: "The image of the SKR sidecar to use"
+        type: string
+      consumer-image: 
+        description: "Consumer Image"
+        required: true
+        type: string
+      producer-image: 
+        description: "Producer Image"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      skr-kafka-demo-topic:
+        description: "Kafka topic"
+        required: true
+        default: "kafka-demo-topic"
+        type: string
+      cluster-name:
+        required: true
+        description: AKS Cluster Name With Randomly Generated Suffix
+        type: string
+      sidecar_registry:
+        required: true
+        default: "mcr.microsoft.com"
+        description: "The registry to get the image from"
+        type: string
+      key-release-image: 
+        required: true 
+        description: "The image of the SKR sidecar to use"
+        type: string
+      consumer-image: 
+        description: "Consumer Image"
+        required: true
+        type: string
+      producer-image: 
+        description: "Producer Image"
+        required: true
+        type: string
+jobs:
+  deploy-kafka:
+    name: Deploy Kafka Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Log into Azure
+        run: |
+          az login --service-principal \
+            --username ${{ secrets.AZURE_SERVICE_PRINCIPAL_APP_ID }} \
+            --password ${{ secrets.AZURE_SERVICE_PRINCIPAL_PASSWORD }} \
+            --tenant ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT }}
+            
+      - name: Install Dependencies 
+        id: install-dependencies 
+        run: |
+            curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+            chmod +x envsubst
+            sudo mv envsubst /usr/local/bin
+
+            result=$(az extension list -o table  2>&1 || true)
+            if [[ $result == *"confcom"* ]]; then
+              echo "confcom already installed, upgrading confcom version."
+              az extension update --name confcom
+            else
+              echo "confcom extension not found. Installing confcom..."
+              az extension add --name confcom
+            fi
+
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin
+            kubectl version 2>&1 || true
+
+      - name: Run Workload
+        env:
+          AZURE_AKV_RESOURCE_ENDPOINT: ${{ secrets.SKR_CLIENT_AKV_ENDPOINT }}
+          MAA_ENDPOINT: ${{ secrets.SKR_CLIENT_MAA_ENDPOINT }}
+          TOPIC: ${{ inputs.skr-kafka-demo-topic }}
+          CLUSTER_NAME: ${{ inputs.cluster-name }}
+          RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }} 
+          SIDECAR_IMAGE: ${{ format('{0}/{1}', inputs.sidecar-registry, inputs.key-release-image) }}
+          CONSUMER_IMAGE: ${{ format('{0}/{1}', inputs.sidecar-registry, inputs.consumer-image) }}
+          PRODUCER_IMAGE: ${{ format('{0}/{1}', inputs.sidecar-registry, inputs.producer-image) }}
+        id: run-workload
+        run: | 
+          az aks get-credentials --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP  --overwrite-existing
+          cd main
+          rm consumer-example.yaml 2>&1 || true 
+          envsubst -i consumer/consumer-pipeline.yaml -o consumer-example.yaml
+          echo "Generating Security Policy for consumer"
+          cat consumer-example.yaml
+          az extension list -o table 
+          export WORKLOAD_MEASUREMENT=$(az confcom katapolicygen -y consumer-example.yaml --print-policy | base64 --decode | sha256sum | cut -d' ' -f1)
+          chmod +x setup-key-pipeline.sh
+          rm kafka-demo-pipeline-info.json 2>&1 || true 
+          rm kafka-demo-pipeline-pub.pem 2>&1 || true 
+          rm kafka-demo-pipeline-release-policy.json 2>&1 || true 
+          az account set --subscription "Azure Confidential Computing DEV AND TEST"
+          bash setup-key-pipeline.sh kafka-demo-pipeline $AZURE_AKV_RESOURCE_ENDPOINT
+
+          sleep 2
+          export PUBKEY=$(cat kafka-demo-pipeline-pub.pem)
+          rm producer-example.yaml 2>&1 || true
+          envsubst -i producer/producer-pipeline.yaml -o producer-example.yaml
+
+          sed -i '25s/^/            /' producer-example.yaml
+          sed -i '26s/^/            /' producer-example.yaml
+          sed -i '27s/^/            /' producer-example.yaml
+          sed -i '28s/^/            /' producer-example.yaml
+          sed -i '29s/^/            /' producer-example.yaml
+          sed -i '30s/^/            /' producer-example.yaml
+          sed -i '31s/^/            /' producer-example.yaml
+          sed -i '32s/^/            /' producer-example.yaml
+          sed -i '33s/^/            /' producer-example.yaml
+          sed -i '34s/^/            /' producer-example.yaml
+          kubectl delete -f consumer-example.yaml 2>&1 || true 
+          sleep 5 
+          kubectl apply -f consumer-example.yaml 2>&1 || true 
+          sleep 10
+
+          kubectl delete -f producer-example.yaml 2>&1 || true 
+          sleep 5 
+          kubectl apply -f producer-example.yaml 2>&1 || true 
+
+      
