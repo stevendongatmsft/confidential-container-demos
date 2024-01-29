@@ -1,6 +1,8 @@
 name: Kafka Demo Test 
 
 on:
+  push:
+    branches: [main, kafka-demo-pipeline]
   workflow_call:
     inputs:
       sidecar-registry:
