@@ -69,18 +69,26 @@ on:
       - main
 
 jobs:
-  create-prepare-aks-cluster:
-    name: Create AKS Cluster
-    uses: ./.github/workflows/_create_prepare_aks_cluster.yml
-    secrets: inherit
+  # create-prepare-aks-cluster:
+  #   name: Create AKS Cluster
+  #   uses: ./.github/workflows/_create_prepare_aks_cluster.yml
+  #   secrets: inherit
+  # extract-vars: 
+  #   name: Extract Env Vars
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #     - name: Get Workflow ID
+  #       id: generate-id
+  #       run: echo "id=$(openssl rand -hex 8 | tr -d '\n')" >> $GITHUB_OUTPUT
 
+    
   deploy-kafka-test: 
     name: Deploy Kafka Demo Test 
     uses: ./.github/workflows/_deploy_kafka_test.yml
-    needs: [create-prepare-aks-cluster]
+    #needs: [create-prepare-aks-cluster]
     secrets: inherit 
     with: 
-      cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
+      cluster-name: "skr-kafka-demo-5c5a1cb26db919ea"
       sidecar-registry: ${{ inputs.sidecar-registry }}
       key-release-image: ${{ inputs.key-release-image }}
       consumer-image: ${{ inputs.consumer-image }}
@@ -89,7 +97,7 @@ jobs:
   test-workload: 
     name: Test Workload 
     uses: ./.github/workflows/_test_workload.yml
-    needs: [create-prepare-aks-cluster, deploy-kafka-test]
+    needs: [deploy-kafka-test]
     secrets: inherit 
     with: 
       cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
