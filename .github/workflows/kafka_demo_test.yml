@@ -40,6 +40,7 @@ on:
         description: "The registry to get the image from"
         required: true
         type: choice
+        default: mcr.microsoft.com
         options: 
           - mcr.microsoft.com
           - confidentialsidecars.azurecr.io
@@ -50,10 +51,12 @@ on:
         type: string
       consumer-image: 
         description: "Consumer Image"
+        default: acc/samples/kafka/consumer:1.0
         required: true
         type: string
       producer-image: 
         description: "Producer Image"
+        default: acc/samples/kafka/producer:1.0
         required: true
         type: string
       kubernetes-version:
