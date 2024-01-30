@@ -38,7 +38,7 @@ jobs:
           max_retries=5
           retries=0
           while [ $retries -lt $max_retries ]; do
-              echo "Querying for the decrypted message from $ConsumerIP"
+              echo "Querying for cluster state"
               result=$(az aks show -g conf-container-examples -n $CLUSTER_NAME --query 'provisioningState' -otsv) 
               # Checking cluster state to be succeeded before initiating delete operation
               # Deleting a cluster in provisioning state results in CLI command error and dangling cluster 
@@ -52,7 +52,10 @@ jobs:
                   echo "Returned cluster provisioning state is $result"
                   echo "Retrying in 3 minutes..."
                   retries=$((retries+1))
-                  exit 1 
               fi
-              sleep 180
           done
+
+          if [ $retries -eq $max_retries ]; then
+            echo "The operation has been tried 3 times without success."
+            exit 1
+          fi
