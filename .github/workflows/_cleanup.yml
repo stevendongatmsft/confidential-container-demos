@@ -52,6 +52,7 @@ jobs:
                   echo "Returned cluster provisioning state is $result"
                   echo "Retrying in 3 minutes..."
                   retries=$((retries+1))
+                  sleep 180
               fi
           done
 
