@@ -100,8 +100,7 @@ jobs:
     needs: [deploy-kafka-test]
     secrets: inherit 
     with: 
-      cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
-
+      cluster-name: "skr-kafka-demo-5c5a1cb26db919ea"
   # cleanup: 
   #   name: Clean Up
   #   if: always()
