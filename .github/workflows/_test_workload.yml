@@ -63,6 +63,7 @@ jobs:
                   echo "Returned result is $result"
                   echo "Returned result does not contain text that indicates successful execution, retrying in 5 seconds..."
                   retries=$((retries+1))
+                  exit 1 
               fi
               sleep 5
           done

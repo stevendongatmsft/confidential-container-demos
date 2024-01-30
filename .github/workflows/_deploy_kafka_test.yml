@@ -1,13 +1,8 @@
-name: Setup Workload Identity 
+name: Deploy Kafka Test
 
 on:
   workflow_call:
     inputs:
-      skr-kafka-demo-topic:
-        description: "Kafka topic"
-        required: true
-        default: "kafka-demo-topic"
-        type: string
       cluster-name:
         required: true
         description: AKS Cluster Name With Randomly Generated Suffix
@@ -31,11 +26,6 @@ on:
         type: string
   workflow_dispatch:
     inputs:
-      skr-kafka-demo-topic:
-        description: "Kafka topic"
-        required: true
-        default: "kafka-demo-topic"
-        type: string
       cluster-name:
         required: true
         description: AKS Cluster Name With Randomly Generated Suffix
@@ -99,7 +89,6 @@ jobs:
         env:
           AZURE_AKV_RESOURCE_ENDPOINT: ${{ secrets.SKR_CLIENT_AKV_ENDPOINT }}
           MAA_ENDPOINT: ${{ secrets.SKR_CLIENT_MAA_ENDPOINT }}
-          TOPIC: ${{ inputs.skr-kafka-demo-topic }}
           CLUSTER_NAME: ${{ inputs.cluster-name }}
           RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }} 
           SIDECAR_IMAGE: ${{ format('{0}/{1}', inputs.sidecar-registry, inputs.key-release-image) }}
@@ -137,13 +126,8 @@ jobs:
           sed -i '32s/^/            /' producer-example.yaml
           sed -i '33s/^/            /' producer-example.yaml
           sed -i '34s/^/            /' producer-example.yaml
-          kubectl delete -f consumer-example.yaml 2>&1 || true 
-          sleep 5 
-          kubectl apply -f consumer-example.yaml 2>&1 || true 
+          kubectl apply -f consumer-example.yaml 2>&1
           sleep 10
-
-          kubectl delete -f producer-example.yaml 2>&1 || true 
-          sleep 5 
-          kubectl apply -f producer-example.yaml 2>&1 || true 
-
+          kubectl apply -f producer-example.yaml 2>&1
+          sleep 10
       

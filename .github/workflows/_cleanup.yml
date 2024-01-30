@@ -16,8 +16,8 @@ on:
 
 
 jobs:
-  setup-workload-identity:
-    name: Cleanup
+  remove-workload-and-cluster:
+    name: Clean Up
     runs-on: ubuntu-latest
     steps:
 
@@ -28,7 +28,7 @@ jobs:
             --password ${{ secrets.AZURE_SERVICE_PRINCIPAL_PASSWORD }} \
             --tenant ${{ secrets.AZURE_SERVICE_PRINCIPAL_TENANT }}
 
-      - name: Cleanup
+      - name: Clean Up
         id: cleanup
         env: 
           RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
@@ -52,6 +52,7 @@ jobs:
                   echo "Returned cluster provisioning state is $result"
                   echo "Retrying in 3 minutes..."
                   retries=$((retries+1))
+                  exit 1 
               fi
               sleep 180
           done

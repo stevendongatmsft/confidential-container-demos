@@ -2,21 +2,11 @@ name: Create and Prepare AKS Cluster
 
 on:
   workflow_call:
-    inputs:
-      kubernetes-version: 
-        required: true
-        type: string
-        description: "Kubernetes version to use for AKS cluster creation"
     outputs:
       cluster-name:
         description: AKS Cluster Name With Randomly Generated Suffix
         value: ${{ jobs.create-prepare-aks-cluster.outputs.cluster-name }}
   workflow_dispatch:
-    inputs:
-      kubernetes-version:
-        required: true
-        type: string
-        description: "Kubernetes version to use for AKS cluster creation"
     
 jobs:
   create-prepare-aks-cluster:
@@ -67,7 +57,7 @@ jobs:
         run: |
           az aks create --resource-group ${{ vars.RESOURCE_GROUP }} \
           --name skr-kafka-demo-${RUN_ID} \
-          --kubernetes-version ${{ inputs.kubernetes-version }} \
+          --kubernetes-version ${{ vars.KUBERNETES_VERSION }} \
           --os-sku AzureLinux \
           --node-vm-size Standard_DC4as_cc_v5 \
           --tags --tags "Owner=accct" \
@@ -118,9 +108,9 @@ jobs:
               az identity federated-credential create --name myFedIdentity --identity-name $USER_ASSIGNED_IDENTITY_NAME --resource-group $RESOURCE_GROUP --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:kafka:workload-identity-sa
           fi
 
-          kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka 2>&1 || true 
+          kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka 2>&1
           # Apply the `Kafka` Cluster CR file
-          kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka 2>&1 || true 
+          kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n kafka 2>&1
 
           echo "Sleep for 3 minute and wait for Kafka cluster to be created and fully working..."
           sleep 180

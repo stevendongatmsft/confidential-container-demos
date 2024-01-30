@@ -33,7 +33,7 @@ spec:
         - name: SkrClientAKVEndpoint
           value: $SkrClientAKVEndpoint
         - name: TOPIC
-          value: $TOPIC
+          value: kafka-demo-topic
       command:
         - /consume
       ports:
