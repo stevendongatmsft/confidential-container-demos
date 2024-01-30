@@ -11,7 +11,7 @@ spec:
   serviceAccountName: workload-identity-sa
   runtimeClassName: kata-cc-isolation
   containers:
-    - image: $CONSUMER_IMAGE
+    - image: $SIDECAR_IMAGE
       imagePullPolicy: Always
       name: skr
       env:
@@ -22,16 +22,16 @@ spec:
       volumeMounts:
         - mountPath: /opt/confidential-containers/share/kata-containers/reference-info-base64
           name: endor-loc
-    - image: $SIDECAR_IMAGE
+    - image: $CONSUMER_IMAGE
       imagePullPolicy: Always
       name: kafka-golang-consumer
       env:
         - name: SkrClientKID
           value: kafka-demo-pipeline
         - name: SkrClientMAAEndpoint
-          value: $SkrClientMAAEndpoint
+          value: $MAA_ENDPOINT
         - name: SkrClientAKVEndpoint
-          value: $SkrClientAKVEndpoint
+          value: $AZURE_AKV_RESOURCE_ENDPOINT
         - name: TOPIC
           value: kafka-demo-topic
       command:

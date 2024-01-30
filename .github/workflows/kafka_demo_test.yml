@@ -1,6 +1,9 @@
 name: Kafka Demo Test 
 
 on:
+  pull_request:
+    branches: 
+      - main
   workflow_call:
     inputs:
       sidecar-registry:
@@ -61,10 +64,9 @@ on:
   merge_group:
     branches:
       - main
-      - kafka-demo-pipeline
 
 jobs:
-  create-prepare-aks-cluster: 
+  create-prepare-aks-cluster:
     name: Create AKS Cluster
     uses: ./.github/workflows/_create_prepare_aks_cluster.yml
     secrets: inherit
