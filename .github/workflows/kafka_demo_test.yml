@@ -88,13 +88,13 @@ jobs:
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
-            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}"
+            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
           fi 
           
           if [[ "${{ inputs.producer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}
-            producer_image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}"
+            producer_image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}
           fi
 
           echo "consumer_image is set to $consumer_image"
