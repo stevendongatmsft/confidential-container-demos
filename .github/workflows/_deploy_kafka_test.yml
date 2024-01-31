@@ -44,7 +44,7 @@ jobs:
       - name: Install Dependencies 
         id: install-dependencies 
         run: |
-            curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+            curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst --fail-with-body 
             chmod +x envsubst
             sudo mv envsubst /usr/local/bin
 
@@ -57,7 +57,7 @@ jobs:
               az extension add --name confcom
             fi
 
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --fail-with-body 
             chmod +x kubectl
             sudo mv kubectl /usr/local/bin
             kubectl version 2>&1 || true
@@ -79,7 +79,6 @@ jobs:
           envsubst -i consumer/consumer-pipeline.yaml -o consumer-example.yaml
           echo "Generating Security Policy for consumer"
           cat consumer-example.yaml
-          az extension list -o table 
           export WORKLOAD_MEASUREMENT=$(az confcom katapolicygen -y consumer-example.yaml --print-policy | base64 --decode | sha256sum | cut -d' ' -f1)
           chmod +x setup-key-pipeline.sh
           rm kafka-demo-pipeline-info.json 2>&1 || true 
