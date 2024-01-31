@@ -23,36 +23,33 @@ jobs:
         env: 
           RESOURCE_GROUP: ${{ vars.RESOURCE_GROUP }}
         run: | 
-          result=$(az aks list -g $RESOURCE_GROUP --query "[].name" -otsv)
-          sleep 30 
-          max_retries=5
-          retries=0
+          result=$(az aks list -g conf-container-examples --query "[].name" -otsv)
+
           for name in $result 
           do
-            while [ $retries -lt $max_retries ]; do
-                echo "Querying for cluster state"
-                result=$(az aks show -g conf-container-examples $name --query 'provisioningState' -otsv) 
-                # Checking cluster state to be succeeded before initiating delete operation
-                # Deleting a cluster in provisioning state results in CLI command error and dangling cluster 
-                if [[ $result == *"Succeeded"* ]]; then
-                    echo "Returned result is $result"
-                    echo "Cluster is ready to be deleted."
-                    az aks stop --resource-group $RESOURCE_GROUP --name $name 2>&1
-                    az aks delete --resource-group $RESOURCE_GROUP --name $name --no-wait --yes
-                    break  # Exit the loop on successful attempt
-                elif [[ $result == *"Stopped"* ]]; then
-                    az aks delete --resource-group $RESOURCE_GROUP --name $name --no-wait --yes
-                    break  # Exit the loop on successful attempt
-                else
-                    echo "Returned cluster provisioning state is $result"
-                    echo "Retrying in 3 minutes..."
-                    retries=$((retries+1))
-                    sleep 180
-                fi
-            done
+              max_retries=5
+              retries=0
+              while [ $retries -lt $max_retries ]; do
+                  echo "Querying for cluster state"
+                  clusterstate=$(az aks show -g conf-container-examples -n $name --query 'provisioningState' -otsv) 
+                  if [[ $clusterstate == *"Succeeded"* ]]; then
+                      echo "Returned result is $clusterstate"
+                      echo "Cluster is ready to be deleted."
+                      az aks stop --resource-group conf-container-examples --name $name 2>&1
+                      az aks delete --resource-group conf-container-examples --name $name --no-wait --yes
+                      break  # Exit the loop on successful attempt
+                  elif [[ $clusterstate == *"Stopped"* ]] || [[ $clusterstate == *"Failed"* ]]; then
+                      az aks delete --resource-group conf-container-examples --name $name --no-wait --yes
+                      break  # Exit the loop on successful attempt
+                  else
+                      echo "Returned cluster provisioning state is $clusterstate"
+                      echo "Retrying in 3 minutes..."
+                      retries=$((retries+1))
+                      sleep 180
+                  fi
+              done
+              if [ $retries -eq $max_retries ]; then
+                  echo "The operation has been tried 5 times without success."
+                  exit 1
+              fi
           done
-
-          if [ $retries -eq $max_retries ]; then
-            echo "The operation has been tried 5 times without success."
-            exit 1
-          fi
