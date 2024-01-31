@@ -107,3 +107,9 @@ sed -i '32s/^/            /' producer-example.yaml
 sed -i '33s/^/            /' producer-example.yaml
 sed -i '34s/^/            /' producer-example.yaml
 cat producer-example.yaml
+
+
+kubectl apply -f consumer-example.yaml 2>&1
+sleep 10
+kubectl apply -f producer-example.yaml 2>&1
+sleep 10
