@@ -83,25 +83,25 @@ jobs:
         id: build-image
         run: | 
           cd main/kafka/consumer
-          consumer-image=""
-          producer-image=""
+          consumer_image=""
+          producer_image=""
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
-            consumer-image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}"
+            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}"
           fi 
           
           if [[ "${{ inputs.producer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}
-            producer-image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}"
+            producer_image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}"
           fi
 
-          echo "consumer-image is set to $consumer-image"
-          echo "producer-image is set to $producer-image"
+          echo "consumer_image is set to $consumer_image"
+          echo "producer_image is set to $producer_image"
 
-          echo "consumer-image=$consumer-image" >> $GITHUB_OUTPUT
-          echo "producer-image=$producer-image" >> $GITHUB_OUTPUT
+          echo "consumer-image=$consumer_image" >> $GITHUB_OUTPUT
+          echo "producer-image=$producer_image" >> $GITHUB_OUTPUT
 
   prepare:
     name: Extract Environment Variables
