@@ -24,11 +24,6 @@ on:
         description: "Producer Image"
         required: true
         type: string
-      kubernetes-version:
-        description: "Kubernetes version to use for AKS cluster creation"
-        required: true
-        default: "1.28.3"
-        type: string
       skr-kafka-demo-topic:
         description: "Kafka topic"
         required: true
@@ -59,16 +54,35 @@ on:
         default: acc/samples/kafka/producer:1.0
         required: true
         type: string
-      kubernetes-version:
-        description: "Kubernetes version to use for AKS cluster creation"
-        required: true
-        default: "1.28.3"
-        type: string
   merge_group:
     branches:
       - main
 
 jobs:
+  build-image:
+    name: Build Image 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build image 
+        id: build-image
+        run: | 
+          if [[ "${{ inputs.consumer-image }}" == "" ]]; then
+            echo "sidecar-registry=mcr.microsoft.com" >> $GITHUB_OUTPUT
+            echo "key-release-image=aci/skr:2.7" >> $GITHUB_OUTPUT
+            echo "consumer-image=acc/samples/kafka/consumer:1.0" >> $GITHUB_OUTPUT
+            echo "producer-image=acc/samples/kafka/producer:1.0" >> $GITHUB_OUTPUT
+          fi 
+
+          echo "sidecar-registry=${{ inputs.sidecar-registry }}" >> $GITHUB_OUTPUT
+          echo "key-release-image=${{ inputs.key-release-image }}" >> $GITHUB_OUTPUT
+          echo "consumer-image=${{ inputs.consumer-image }}" >> $GITHUB_OUTPUT
+          echo "producer-image=${{ inputs.producer-image }}" >> $GITHUB_OUTPUT
+          fi
+
+
   prepare:
     name: Extract Environment Variables
     runs-on: ubuntu-latest

@@ -5,13 +5,13 @@ on:
     inputs:
       cluster-name:
         required: true
-        description: AKS Cluster Name With Randomly Generated Suffix
+        description: AKS Cluster Name
         type: string
   workflow_dispatch:
     inputs:
       cluster-name:
         required: true
-        description: AKS Cluster Name With Randomly Generated Suffix
+        description: AKS Cluster Name
         type: string
 
 
@@ -57,6 +57,6 @@ jobs:
           done
 
           if [ $retries -eq $max_retries ]; then
-            echo "The operation has been tried 3 times without success."
+            echo "The operation has been tried 5 times without success."
             exit 1
           fi
