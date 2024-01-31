@@ -59,9 +59,50 @@ on:
       - main
 
 jobs:
+  build-image:
+    name: Build Image 
+    runs-on: ubuntu-latest
+    if: ${{ inputs.consumer-image }} == '' || ${{ inputs.producer-image }} == ''
+    outputs:
+      consumer-image: ${{ steps.build-image.outputs.consumer-image }}
+      producer-image: ${{ steps.build-image.outputs.producer-image }}
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_REGISTRY_URLL }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAMEE }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORDD }}
+
+      - name: Build image 
+        id: build-image
+        run: | 
+          if [[ "${{ inputs.consumer-image }}" == "" ]]; then
+            cd main/kafka/consumer
+            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}} -f Dockerfile . 
+            docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
+            echo "consumer-image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}" >> $GITHUB_OUTPUT
+            echo "producer-image=""" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.producer-image }}" == "" ]]; then
+            cd main/kafka/producer
+            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}} -f Dockerfile . 
+            docker push fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}
+            echo "producer-image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{github.sha}}" >> $GITHUB_OUTPUT
+            echo "consumer-image=""" >> $GITHUB_OUTPUT
+          else
+            echo "producer-image=""" >> $GITHUB_OUTPUT
+            echo "consumer-image=""" >> $GITHUB_OUTPUT
+          fi 
+          
+
+
   prepare:
     name: Extract Environment Variables
     runs-on: ubuntu-latest
+    needs: [build-image]
     outputs:
       sidecar-registry: ${{ steps.extract-envs.outputs.sidecar-registry }}
       key-release-image: ${{ steps.extract-envs.outputs.key-release-image }}
@@ -79,25 +120,35 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "sidecar-registry=mcr.microsoft.com" >> $GITHUB_OUTPUT
             echo "key-release-image=aci/skr:2.7" >> $GITHUB_OUTPUT
-            echo "consumer-image=acc/samples/kafka/consumer:1.0" >> $GITHUB_OUTPUT
-            echo "producer-image=acc/samples/kafka/producer:1.0" >> $GITHUB_OUTPUT
+            echo "consumer-image=${{ needs.build-image.outputs.consumer-image }}" >> $GITHUB_OUTPUT
+            echo "producer-image=${{ needs.build-image.outputs.producer-image }}" >> $GITHUB_OUTPUT
           else
             echo "sidecar-registry=${{ inputs.sidecar-registry }}" >> $GITHUB_OUTPUT
             echo "key-release-image=${{ inputs.key-release-image }}" >> $GITHUB_OUTPUT
-            echo "consumer-image=${{ inputs.consumer-image }}" >> $GITHUB_OUTPUT
-            echo "producer-image=${{ inputs.producer-image }}" >> $GITHUB_OUTPUT
+
+            if [ -z "${{ inputs.consumer-image }}" ]; then
+              echo "consumer-image=${{ needs.build-image.outputs.consumer-image }}" >> $GITHUB_OUTPUT
+            else
+              echo "consumer-image=${{ inputs.consumer-image }}" >> $GITHUB_OUTPUT
+            fi
+
+            if [ -z "${{ inputs.producer-image }}" ]; then
+              echo "producer-image=${{ needs.build-image.outputs.producer-image }}" >> $GITHUB_OUTPUT
+            else
+              echo "producer-image=${{ inputs.producer-image }}" >> $GITHUB_OUTPUT
+            fi
           fi
 
   create-prepare-aks-cluster:
     name: Create AKS Cluster
-    needs: [prepare]
+    needs: [build-image, prepare]
     uses: ./.github/workflows/_create_prepare_aks_cluster.yml
     secrets: inherit
  
   deploy-kafka-test: 
     name: Deploy Kafka Demo Test 
     uses: ./.github/workflows/_deploy_kafka_test.yml
-    needs: [prepare, create-prepare-aks-cluster]
+    needs: [build-image, prepare, create-prepare-aks-cluster]
     secrets: inherit 
     with: 
       cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
@@ -109,7 +160,7 @@ jobs:
   test-workload: 
     name: Test Workload 
     uses: ./.github/workflows/_test_workload.yml
-    needs: [prepare, create-prepare-aks-cluster, deploy-kafka-test]
+    needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test]
     secrets: inherit 
     with: 
       cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
@@ -118,7 +169,7 @@ jobs:
     name: Clean Up
     if: always()
     uses: ./.github/workflows/_cleanup.yml
-    needs: [prepare, create-prepare-aks-cluster, deploy-kafka-test, test-workload]
+    needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test, test-workload]
     secrets: inherit
 
   
