@@ -44,7 +44,7 @@ jobs:
             az extension add --name aks-preview
           fi
 
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --fail-with-body 
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"  --fail-with-body
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin
           kubectl version 2>&1 || true
@@ -60,7 +60,10 @@ jobs:
           --kubernetes-version ${{ vars.KUBERNETES_VERSION }} \
           --os-sku AzureLinux \
           --node-vm-size Standard_DC4as_cc_v5 \
-          --tags --tags "Owner=accct" \
+          --tags "Owner=accct" \
+          --tags "Usage=Test Pipeline" \
+          --tags "email=accct@microsoft.com" \
+          --tags "GithubRepo=https://github.com/microsoft/confidential-container-demos" \
           --enable-oidc-issuer \
           --enable-workload-identity \
           --workload-runtime KataCcIsolation \
