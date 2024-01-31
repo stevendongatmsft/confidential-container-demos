@@ -24,29 +24,6 @@ on:
         description: "Producer Image"
         required: true
         type: string
-  # workflow_dispatch:
-  #   inputs:
-  #     cluster-name:
-  #       required: true
-  #       description: AKS Cluster Name With Randomly Generated Suffix
-  #       type: string
-  #     sidecar_registry:
-  #       required: true
-  #       default: "mcr.microsoft.com"
-  #       description: "The registry to get the image from"
-  #       type: string
-  #     key-release-image: 
-  #       required: true 
-  #       description: "The image of the SKR sidecar to use"
-  #       type: string
-  #     consumer-image: 
-  #       description: "Consumer Image"
-  #       required: true
-  #       type: string
-  #     producer-image: 
-  #       description: "Producer Image"
-  #       required: true
-  #       type: string
 jobs:
   deploy-kafka:
     name: Deploy Kafka Test

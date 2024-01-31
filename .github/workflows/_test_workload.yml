@@ -7,12 +7,7 @@ on:
         required: true
         description: AKS Cluster Name With Randomly Generated Suffix
         type: string
-  workflow_dispatch:
-    inputs:
-      cluster-name:
-        required: true
-        description: AKS Cluster Name With Randomly Generated Suffix
-        type: string
+
 jobs:
   test-workload:
     name: Test Workload
