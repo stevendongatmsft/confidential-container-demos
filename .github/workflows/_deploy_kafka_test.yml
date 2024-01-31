@@ -75,33 +75,10 @@ jobs:
         run: | 
           az aks get-credentials --name $CLUSTER_NAME --resource-group $RESOURCE_GROUP  --overwrite-existing
           cd main/kafka
-          rm consumer-example.yaml 2>&1 || true 
-          envsubst -i consumer/consumer-pipeline.yaml -o consumer-example.yaml
-          echo "Generating Security Policy for consumer"
-          cat consumer-example.yaml
-          export WORKLOAD_MEASUREMENT=$(az confcom katapolicygen -y consumer-example.yaml --print-policy | base64 --decode | sha256sum | cut -d' ' -f1)
-          chmod +x setup-key-pipeline.sh
-          rm kafka-demo-pipeline-info.json 2>&1 || true 
-          rm kafka-demo-pipeline-pub.pem 2>&1 || true 
-          rm kafka-demo-pipeline-release-policy.json 2>&1 || true
-          bash setup-key-pipeline.sh kafka-demo-pipeline $AZURE_AKV_RESOURCE_ENDPOINT
 
-          sleep 2
-          export PUBKEY=$(cat kafka-demo-pipeline-pub.pem)
-          rm producer-example.yaml 2>&1 || true
-          envsubst -i producer/producer-pipeline.yaml -o producer-example.yaml
-          
-          sed -i '25s/^/            /' producer-example.yaml
-          sed -i '26s/^/            /' producer-example.yaml
-          sed -i '27s/^/            /' producer-example.yaml
-          sed -i '28s/^/            /' producer-example.yaml
-          sed -i '29s/^/            /' producer-example.yaml
-          sed -i '30s/^/            /' producer-example.yaml
-          sed -i '31s/^/            /' producer-example.yaml
-          sed -i '32s/^/            /' producer-example.yaml
-          sed -i '33s/^/            /' producer-example.yaml
-          sed -i '34s/^/            /' producer-example.yaml
-          cat producer-example.yaml
+          chmod +x test-setup.sh
+          bash test-setup.sh kafka-demo-pipeline $AZURE_AKV_RESOURCE_ENDPOINT
+
           kubectl apply -f consumer-example.yaml 2>&1
           sleep 10
           kubectl apply -f producer-example.yaml 2>&1

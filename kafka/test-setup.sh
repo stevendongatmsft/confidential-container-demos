@@ -45,6 +45,12 @@ policy_file_name="${KEY_NAME}-release-policy.json"
 echo { \"anyOf\":[ { \"authority\":\"https://${MAA_ENDPOINT}\", \"allOf\":[ > ${policy_file_name}
 echo '{"claim":"x-ms-attestation-type", "equals":"sevsnpvm"},' >> ${policy_file_name}
 
+envsubst -i consumer/consumer-pipeline.yaml -o consumer-example.yaml
+echo "Generating Security Policy for consumer"
+cat consumer-example.yaml
+
+export WORKLOAD_MEASUREMENT=$(az confcom katapolicygen -y consumer-example.yaml --print-policy | base64 --decode | sha256sum | cut -d' ' -f1)
+
 if [[ -z "${WORKLOAD_MEASUREMENT}" ]]; then
 	echo "Warning: Env WORKLOAD_MEASUREMENT is not set. Set this to condition releasing your key on your security policy matching the expected value.  Recommended for production workloads."
 else
@@ -85,3 +91,19 @@ echo \"attester_endpoint\": \"${MAA_ENDPOINT}\" >> ${key_info_file}
 echo }  >> ${key_info_file}
 echo "......Generated key info file ${key_info_file}"
 echo "......Key setup successful!"
+
+
+sleep 2
+export PUBKEY=$(cat kafka-demo-pipeline-pub.pem)
+envsubst -i producer/producer-pipeline.yaml -o producer-example.yaml
+sed -i '25s/^/            /' producer-example.yaml
+sed -i '26s/^/            /' producer-example.yaml
+sed -i '27s/^/            /' producer-example.yaml
+sed -i '28s/^/            /' producer-example.yaml
+sed -i '29s/^/            /' producer-example.yaml
+sed -i '30s/^/            /' producer-example.yaml
+sed -i '31s/^/            /' producer-example.yaml
+sed -i '32s/^/            /' producer-example.yaml
+sed -i '33s/^/            /' producer-example.yaml
+sed -i '34s/^/            /' producer-example.yaml
+cat producer-example.yaml
