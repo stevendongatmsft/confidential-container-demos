@@ -141,40 +141,37 @@ jobs:
             fi
           fi
 
-          echo "1 ${{ needs.build-image.outputs.consumer-image }}"
-          echo "2 ${{ needs.build-image.outputs.producer-image }}"
-
-  # create-prepare-aks-cluster:
-  #   name: Create AKS Cluster
-  #   needs: [build-image, prepare]
-  #   uses: ./.github/workflows/_create_prepare_aks_cluster.yml
-  #   secrets: inherit
+  create-prepare-aks-cluster:
+    name: Create AKS Cluster
+    needs: [build-image, prepare]
+    uses: ./.github/workflows/_create_prepare_aks_cluster.yml
+    secrets: inherit
  
-  # deploy-kafka-test: 
-  #   name: Deploy Kafka Demo Test 
-  #   uses: ./.github/workflows/_deploy_kafka_test.yml
-  #   needs: [build-image, prepare, create-prepare-aks-cluster]
-  #   secrets: inherit 
-  #   with: 
-  #     cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
-  #     key-release-image: ${{ needs.prepare.outputs.key-release-image }}
-  #     consumer-image: ${{ needs.prepare.outputs.consumer-image }}
-  #     producer-image: ${{ needs.prepare.outputs.producer-image }}
+  deploy-kafka-test: 
+    name: Deploy Kafka Demo Test 
+    uses: ./.github/workflows/_deploy_kafka_test.yml
+    needs: [build-image, prepare, create-prepare-aks-cluster]
+    secrets: inherit 
+    with: 
+      cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
+      key-release-image: ${{ needs.prepare.outputs.key-release-image }}
+      consumer-image: ${{ needs.prepare.outputs.consumer-image }}
+      producer-image: ${{ needs.prepare.outputs.producer-image }}
 
-  # test-workload: 
-  #   name: Test Workload 
-  #   uses: ./.github/workflows/_test_workload.yml
-  #   needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test]
-  #   secrets: inherit 
-  #   with: 
-  #     cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
+  test-workload: 
+    name: Test Workload 
+    uses: ./.github/workflows/_test_workload.yml
+    needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test]
+    secrets: inherit 
+    with: 
+      cluster-name: ${{ needs.create-prepare-aks-cluster.outputs.cluster-name }}
 
-  # cleanup: 
-  #   name: Clean Up
-  #   if: always()
-  #   uses: ./.github/workflows/_cleanup.yml
-  #   needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test, test-workload]
-  #   secrets: inherit
+  cleanup: 
+    name: Clean Up
+    if: always()
+    uses: ./.github/workflows/_cleanup.yml
+    needs: [build-image, prepare, create-prepare-aks-cluster, deploy-kafka-test, test-workload]
+    secrets: inherit
 
   
 
