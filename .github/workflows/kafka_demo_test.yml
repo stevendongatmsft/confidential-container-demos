@@ -85,8 +85,8 @@ jobs:
           cd main/kafka/consumer
           consumer_image=""
           producer_image=""
-          sha = ${{ github.sha }}
-          sha_short = ${sha:0:6}
+          sha=${{ github.sha }}
+          sha_short=${sha:0:6}
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then 
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:$sha_short  -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:$sha_short
