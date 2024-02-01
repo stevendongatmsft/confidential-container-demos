@@ -75,7 +75,7 @@ jobs:
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.AZURE_REGISTRY_URLL }}
+          login-server: ${{ vars.AZURE_REGISTRY_URLL }}
           username: ${{ secrets.AZURE_REGISTRY_USERNAMEE }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORDD }}
 
@@ -85,18 +85,17 @@ jobs:
           cd main/kafka/consumer
           consumer_image=""
           producer_image=""
-          suffix=$(openssl rand -hex 8 | tr -d '\n')
          
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then 
-            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:$suffix  -f Dockerfile . 
-            docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:$suffix
-            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:$suffix
+            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{ github.sha }}  -f Dockerfile . 
+            docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{ github.sha }}
+            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{ github.sha }}
           fi 
           
           if [[ "${{ inputs.producer-image }}" == "" ]]; then
-            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/producer:$suffix  -f Dockerfile . 
-            docker push fishersnpregistry.azurecr.io/kafka-pipeline/producer:$suffix
-            producer_image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:$suffix
+            docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{ github.sha }}  -f Dockerfile . 
+            docker push fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{ github.sha }}
+            producer_image=fishersnpregistry.azurecr.io/kafka-pipeline/producer:${{ github.sha }}
           fi
 
           echo "consumer_image is set to $consumer_image"
