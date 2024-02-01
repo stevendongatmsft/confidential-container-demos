@@ -76,7 +76,7 @@ jobs:
         uses: azure/docker-login@v1
         with:
           login-server: ${{ vars.AZURE_REGISTRY_URLL }}
-          username: ${{ secrets.AZURE_REGISTRY_USERNAMEE }}
+          username: ${{ vars.AZURE_REGISTRY_USERNAMEE }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORDD }}
 
       - name: Build image 
