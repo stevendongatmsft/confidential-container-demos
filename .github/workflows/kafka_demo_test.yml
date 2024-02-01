@@ -100,8 +100,8 @@ jobs:
           echo "consumer_image is set to $consumer_image"
           echo "producer_image is set to $producer_image"
 
-          echo "consumer-image=$consumer_image" >> $GITHUB_OUTPUT
-          echo "producer-image=$producer_image" >> $GITHUB_OUTPUT
+          echo "consumer-image=${consumer_image}" >> $GITHUB_OUTPUT
+          echo "producer-image=${producer_image}" >> $GITHUB_OUTPUT
 
   prepare:
     name: Extract Environment Variables
@@ -139,8 +139,6 @@ jobs:
               echo "producer-image=${{ format('{0}/{1}', inputs.sidecar-registry, inputs.producer-image) }}" >> $GITHUB_OUTPUT
             fi
           fi
-          echo "1 ${{ needs.build-image.outputs.consumer-image }}"
-          echo "2 ${{ needs.build-image.outputs.producer-image }}"
 
   # create-prepare-aks-cluster:
   #   name: Create AKS Cluster
