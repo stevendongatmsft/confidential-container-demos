@@ -88,7 +88,7 @@ jobs:
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
-            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
+            cons2umer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
           fi 
           
           if [[ "${{ inputs.producer-image }}" == "" ]]; then
@@ -139,6 +139,9 @@ jobs:
               echo "producer-image=${{ format('{0}/{1}', inputs.sidecar-registry, inputs.producer-image) }}" >> $GITHUB_OUTPUT
             fi
           fi
+
+          echo "1 ${{ needs.build-image.outputs.consumer-image }}"
+          echo "2 ${{ needs.build-image.outputs.producer-image }}"
 
   # create-prepare-aks-cluster:
   #   name: Create AKS Cluster
