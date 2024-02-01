@@ -5,7 +5,7 @@ on:
     inputs:
       cluster-name:
         required: true
-        description: AKS Cluster Name With Randomly Generated Suffix
+        description: AKS Cluster Name
         type: string
       key-release-image: 
         required: true 
