@@ -64,8 +64,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.consumer-image }} == '' || ${{ inputs.producer-image }} == ''
     outputs:
-      consumer-image: ${{ steps.build-image.outputs.consumer-image }}
-      producer-image: ${{ steps.build-image.outputs.producer-image }}
+      consumer-image: ${{ steps.tag-image.outputs.consumer-image }}
+      producer-image: ${{ steps.tag-image.outputs.producer-image }}
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,7 +80,7 @@ jobs:
           password: ${{ secrets.AZURE_REGISTRY_PASSWORDD }}
 
       - name: Build image 
-        id: build-image
+        id: tag-image
         run: | 
           cd main/kafka/consumer
           consumer_image=""
@@ -88,7 +88,7 @@ jobs:
           if [[ "${{ inputs.consumer-image }}" == "" ]]; then
             docker build -t fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}} -f Dockerfile . 
             docker push fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
-            cons2umer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
+            consumer_image=fishersnpregistry.azurecr.io/kafka-pipeline/consumer:${{github.sha}}
           fi 
           
           if [[ "${{ inputs.producer-image }}" == "" ]]; then
