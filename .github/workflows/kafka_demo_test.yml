@@ -53,9 +53,9 @@ jobs:
           echo "Extracting Environment Variables"
           echo "Triggering event is ${{ github.event_name }}"
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "key-release-image=mcr.microsoft.com/aci/skr:2.7" >> $GITHUB_OUTPUT
-            echo "consumer-image=mcr.microsoft.com/acc/samples/kafka/consumer:2.0" >> $GITHUB_OUTPUT
-            echo "producer-image=mcr.microsoft.com/acc/samples/kafka/producer:2.0" >> $GITHUB_OUTPUT
+            echo "key-release-image=${{ vars.RELEASED_SKR_IMAGE }}" >> $GITHUB_OUTPUT
+            echo "consumer-image=${{ vars.RELEASED_CONSUMER_IMAGE }}" >> $GITHUB_OUTPUT
+            echo "producer-image=${{ vars.RELEASED_PRODUCER_IMAGE }}" >> $GITHUB_OUTPUT
           else
             echo "key-release-image=${{ format('{0}/{1}', inputs.sidecar-registry, inputs.key-release-image) }}" >> $GITHUB_OUTPUT
             echo "consumer-image=${{ inputs.consumer-image }}" >> $GITHUB_OUTPUT

@@ -4,11 +4,11 @@
 # --------------------------------------------------------------------------------------------
 
 FROM golang:1.21 as builder
-WORKDIR /app
-COPY go.* ./
-RUN go mod download
-COPY . ./
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly  -v -o produce
+ENV PROJECT_DIR=/go/src/github.com/microsoft
+WORKDIR ${PROJECT_DIR}/confidential-container-demos
+COPY /kafka/producer ./kafka/producer
+COPY /kafka/util ./kafka/util
+RUN cd kafka/producer && go mod download && CGO_ENABLED=0 GOOS=linux go build -mod=readonly  -v -o produce
 FROM mcr.microsoft.com/cbl-mariner/distroless/minimal:2.0
-COPY --from=builder /app/produce /produce
+COPY --from=builder /go/src/github.com/microsoft/confidential-container-demos/kafka/producer/produce /produce
 CMD ["/produce"]

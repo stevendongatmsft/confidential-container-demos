@@ -8,6 +8,7 @@ module github.com/microsoft/confidential-container-demos/kafka/producer
 go 1.21
 
 require (
+	github.com/microsoft/confidential-container-demos/kafka/util v0.0.0
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.10.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.5.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.5.2 // indirect

@@ -35,6 +35,8 @@ spec:
           value: $EVENTHUB_NAMESPACE
         - name: EVENTHUB
           value: $EVENTHUB
+        - name: LOG_FILE
+          value: $LOG_FILE
       command:
         - /consume
       ports:

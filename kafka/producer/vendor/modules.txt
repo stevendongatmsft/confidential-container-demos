@@ -116,6 +116,9 @@ github.com/google/uuid
 ## explicit; go 1.11
 github.com/kylelemons/godebug/diff
 github.com/kylelemons/godebug/pretty
+# github.com/microsoft/confidential-container-demos/kafka/util v0.0.0 => /mnt/c/Users/stevendong/go/src/github.com/microsoft/confidential-container-demos/kafka/util
+## explicit; go 1.21
+github.com/microsoft/confidential-container-demos/kafka/util
 # github.com/pierrec/lz4 v2.6.1+incompatible
 ## explicit
 # github.com/pierrec/lz4/v4 v4.1.21
@@ -152,3 +155,4 @@ golang.org/x/text/unicode/norm
 ## explicit
 # gopkg.in/jcmturner/rpc.v1 v1.1.0
 ## explicit
+# github.com/microsoft/confidential-container-demos/kafka/util => /mnt/c/Users/stevendong/go/src/github.com/microsoft/confidential-container-demos/kafka/util
